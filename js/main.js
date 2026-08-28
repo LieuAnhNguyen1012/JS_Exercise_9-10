@@ -73,7 +73,7 @@ function hienThiDanhSachNhanVien(danhSach) {
                     <button
                         type="button"
                         class="btn btn-danger btn-sm"
-                        disabled
+                        onclick="xoaNhanVien('${nhanVien.taiKhoan}')"
                     >
                         Xóa
                     </button>
@@ -83,6 +83,33 @@ function hienThiDanhSachNhanVien(danhSach) {
   }
 
   document.getElementById("tableDanhSach").innerHTML = noiDungHTML;
+}
+
+// Xóa nhân viên theo tài khoản
+function xoaNhanVien(taiKhoanCanXoa) {
+    const viTri = danhSachNhanVien.findIndex(function (nhanVien) {
+        return nhanVien.taiKhoan === taiKhoanCanXoa;
+    });
+
+    // Không tìm thấy nhân viên
+    if (viTri === -1) {
+        alert("Không tìm thấy nhân viên cần xóa");
+        return;
+    }
+
+    const xacNhanXoa = confirm(
+        `Bạn có chắc muốn xóa nhân viên ${taiKhoanCanXoa} không?`
+    );
+
+    if (!xacNhanXoa) {
+        return;
+    }
+
+    // Xóa một phần tử tại vị trí vừa tìm được
+    danhSachNhanVien.splice(viTri, 1);
+
+    // Hiển thị lại bảng
+    hienThiDanhSachNhanVien(danhSachNhanVien);
 }
 
 // Xóa dữ liệu đang có trong form
