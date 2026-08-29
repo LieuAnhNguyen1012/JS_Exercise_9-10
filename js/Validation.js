@@ -16,7 +16,7 @@ class Validation {
     }
 
     // Kiểm tra tài khoản
-    kiemTraTaiKhoan(taiKhoan, danhSachNhanVien) {
+    kiemTraTaiKhoan(taiKhoan, danhSachNhanVien, taiKhoanDangCapNhat = null) {
         const regexTaiKhoan = /^\d{4,6}$/;
 
         if (taiKhoan === "") {

@@ -1,6 +1,9 @@
 // Mảng dùng để lưu danh sách nhân viên
 let danhSachNhanVien = [];
 
+// Lưu tài khoản của nhân viên đang được chỉnh sửa
+let taiKhoanDangCapNhat = null;
+
 // Khởi tạo đối tượng Validation
 const validation = new Validation();
 
@@ -65,7 +68,7 @@ function hienThiDanhSachNhanVien(danhSach) {
                     <button
                         type="button"
                         class="btn btn-warning btn-sm"
-                        disabled
+                        onclick="suaNhanVien('${nhanVien.taiKhoan}')"
                     >
                         Sửa
                     </button>
@@ -85,31 +88,67 @@ function hienThiDanhSachNhanVien(danhSach) {
   document.getElementById("tableDanhSach").innerHTML = noiDungHTML;
 }
 
+// Sửa nhân viên theo tài khoản
+function suaNhanVien(taiKhoanCanSua) {
+  const nhanVienCanSua = danhSachNhanVien.find(function (nhanVien) {
+    return nhanVien.taiKhoan === taiKhoanCanSua;
+  });
+
+  if (!nhanVienCanSua) {
+    alert("Không tìm thấy nhân viên cần sửa");
+    return;
+  }
+
+  // Lưu tài khoản của nhân viên đang được chỉnh sửa
+  taiKhoanDangCapNhat = taiKhoanCanSua;
+
+  // Đưa dữ liệu của nhân viên cần sửa vào form
+  document.getElementById("tknv").value = nhanVienCanSua.taiKhoan;
+  document.getElementById("name").value = nhanVienCanSua.hoTen;
+  document.getElementById("email").value = nhanVienCanSua.email;
+  document.getElementById("password").value = nhanVienCanSua.matKhau;
+  document.getElementById("datepicker").value = nhanVienCanSua.ngayLam;
+  document.getElementById("luongCB").value = nhanVienCanSua.luongCoBan;
+  document.getElementById("chucvu").value = nhanVienCanSua.chucVu;
+  document.getElementById("gioLam").value = nhanVienCanSua.gioLam;
+
+  // Không cho thay đổi tài khoản vì là khoá để tìm nv
+  document.getElementById("tknv").disabled = true;
+
+  // Chuyển giao diện sang chế độ cập nhật
+  document.getElementById("header-title").innerText = "Cập nhật nhân viên";
+  document.getElementById("btnThemNV").style.display = "none";
+  document.getElementById("btnCapNhat").style.display = "inline-block";
+
+  // Mở modal
+  $("#myModal").modal("show");
+}
+
 // Xóa nhân viên theo tài khoản
 function xoaNhanVien(taiKhoanCanXoa) {
-    const viTri = danhSachNhanVien.findIndex(function (nhanVien) {
-        return nhanVien.taiKhoan === taiKhoanCanXoa;
-    });
+  const viTri = danhSachNhanVien.findIndex(function (nhanVien) {
+    return nhanVien.taiKhoan === taiKhoanCanXoa;
+  });
 
-    // Không tìm thấy nhân viên
-    if (viTri === -1) {
-        alert("Không tìm thấy nhân viên cần xóa");
-        return;
-    }
+  // Không tìm thấy nhân viên
+  if (viTri === -1) {
+    alert("Không tìm thấy nhân viên cần xóa");
+    return;
+  }
 
-    const xacNhanXoa = confirm(
-        `Bạn có chắc muốn xóa nhân viên ${taiKhoanCanXoa} không?`
-    );
+  const xacNhanXoa = confirm(
+    `Bạn có chắc muốn xóa nhân viên ${taiKhoanCanXoa} không?`,
+  );
 
-    if (!xacNhanXoa) {
-        return;
-    }
+  if (!xacNhanXoa) {
+    return;
+  }
 
-    // Xóa một phần tử tại vị trí vừa tìm được
-    danhSachNhanVien.splice(viTri, 1);
+  // Xóa một phần tử tại vị trí vừa tìm được
+  danhSachNhanVien.splice(viTri, 1);
 
-    // Hiển thị lại bảng
-    hienThiDanhSachNhanVien(danhSachNhanVien);
+  // Hiển thị lại bảng
+  hienThiDanhSachNhanVien(danhSachNhanVien);
 }
 
 // Xóa dữ liệu đang có trong form
