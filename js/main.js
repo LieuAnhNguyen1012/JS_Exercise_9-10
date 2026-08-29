@@ -31,9 +31,13 @@ function layThongTinTuForm() {
 }
 
 // Kiểm tra toàn bộ dữ liệu nhân viên
-function kiemTraDuLieu(nhanVien) {
+function kiemTraDuLieu(nhanVien, dangCapNhat = false) {
   const ketQuaKiemTra = [
-    validation.kiemTraTaiKhoan(nhanVien.taiKhoan, danhSachNhanVien),
+    // Khi cập nhật thì không kiểm tra trùng tài khoản
+    dangCapNhat
+      ? true
+      : validation.kiemTraTaiKhoan(nhanVien.taiKhoan, danhSachNhanVien),
+
     validation.kiemTraHoTen(nhanVien.hoTen),
     validation.kiemTraEmail(nhanVien.email),
     validation.kiemTraMatKhau(nhanVien.matKhau),
@@ -123,6 +127,18 @@ function suaNhanVien(taiKhoanCanSua) {
   // Mở modal
   $("#myModal").modal("show");
 }
+
+//Đưa form vê chế độ thêm nhân viên
+document.getElementById("btnCapNhat").onclick = function () {
+  taiKhoanDangCapNhat = null;
+
+  resetForm();
+
+  document.getElementById("tknv").disabled = false;
+  document.getElementById("header-title").innerText = "Thêm nhân viên";
+  document.getElementById("btnThemNV").style.display = "inline-block";
+  document.getElementById("btnCapNhat").style.display = "none";
+};
 
 // Xóa nhân viên theo tài khoản
 function xoaNhanVien(taiKhoanCanXoa) {
