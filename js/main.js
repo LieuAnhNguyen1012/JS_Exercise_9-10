@@ -128,16 +128,49 @@ function suaNhanVien(taiKhoanCanSua) {
   $("#myModal").modal("show");
 }
 
-//Đưa form vê chế độ thêm nhân viên
+// Xử lý khi nhấn nút "Cập nhật"
 document.getElementById("btnCapNhat").onclick = function () {
-  taiKhoanDangCapNhat = null;
+  // Kiểm tra xem người dùng đã chọn nhân viên cần sửa chưa
+  if (taiKhoanDangCapNhat === null) {
+    alert("Vui lòng chọn nhân viên cần cập nhật");
+    return;
+  }
 
-  resetForm();
+  // Bước 1: Lấy thông tin mới từ form
+  const nhanVienCapNhat = layThongTinTuForm();
 
-  document.getElementById("tknv").disabled = false;
-  document.getElementById("header-title").innerText = "Thêm nhân viên";
-  document.getElementById("btnThemNV").style.display = "inline-block";
-  document.getElementById("btnCapNhat").style.display = "none";
+  // Bước 2: Kiểm tra dữ liệu
+  const formHopLe = kiemTraDuLieu(nhanVienCapNhat, true);
+
+  if (!formHopLe) {
+    return;
+  }
+
+  // Bước 3: Tìm vị trí nhân viên trong mảng
+  const viTri = danhSachNhanVien.findIndex(function (nhanVien) {
+    return nhanVien.taiKhoan === taiKhoanDangCapNhat;
+  });
+
+  if (viTri === -1) {
+    alert("Không tìm thấy nhân viên cần cập nhật");
+    return;
+  }
+
+  // Bước 4: Tính lại tổng lương và xếp loại
+  nhanVienCapNhat.tinhTongLuong();
+  nhanVienCapNhat.xepLoaiNhanVien();
+
+  // Bước 5: Thay nhân viên cũ bằng nhân viên mới
+  danhSachNhanVien[viTri] = nhanVienCapNhat;
+
+  // Bước 6: Hiển thị lại bảng
+  hienThiDanhSachNhanVien(danhSachNhanVien);
+
+  // Bước 7: Đóng modal
+  $("#myModal").modal("hide");
+
+  // Bước 8: Đưa form về chế độ thêm mới
+  chuyenSangCheDoThem();
 };
 
 // Xóa nhân viên theo tài khoản
@@ -170,6 +203,12 @@ function xoaNhanVien(taiKhoanCanXoa) {
 // Xóa dữ liệu đang có trong form
 function resetForm() {
   document.querySelector("#myModal form").reset();
+
+  const danhSachThongBao = document.querySelectorAll(".sp-thongbao");
+
+  danhSachThongBao.forEach(function (thongBao) {
+    thongBao.innerHTML = "";
+  });
 }
 
 // Xử lý khi nhấn nút "Thêm người dùng"
@@ -194,7 +233,72 @@ document.getElementById("btnThemNV").onclick = function () {
 
   // Bước 6: Đóng modal và xóa dữ liệu form
   $("#myModal").modal("hide");
-  resetForm();
+  chuyenSangCheDoThem();
 
   console.log("Danh sách nhân viên:", danhSachNhanVien);
 };
+
+// Chuẩn hoá từ khoá
+function chuanHoaChuoi(chuoi) {
+  return chuoi
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .trim();
+}
+
+// Tìm kiếm nhân viên theo xếp loại
+function timNhanVienTheoLoai() {
+  const tuKhoa = document.getElementById("searchName").value;
+  const tuKhoaChuanHoa = chuanHoaChuoi(tuKhoa);
+
+  if (tuKhoaChuanHoa === "") {
+    hienThiDanhSachNhanVien(danhSachNhanVien);
+    return;
+  }
+
+  const danhSachTimDuoc = danhSachNhanVien.filter(function (nhanVien) {
+    const xepLoaiChuanHoa = chuanHoaChuoi(nhanVien.xepLoai);
+    return xepLoaiChuanHoa.includes(tuKhoaChuanHoa);
+  });
+
+  hienThiDanhSachNhanVien(danhSachTimDuoc);
+}
+
+document.getElementById("btnTimNV").onclick = function () {
+  timNhanVienTheoLoai();
+};
+
+document
+  .getElementById("searchName")
+  .addEventListener("keyup", function (event) {
+    if (event.key === "Enter") {
+      timNhanVienTheoLoai();
+    }
+  });
+
+// Chuyển chế độ thành thêm
+function chuyenSangCheDoThem() {
+  taiKhoanDangCapNhat = null;
+
+  resetForm();
+
+  document.getElementById("tknv").disabled = false;
+  document.getElementById("header-title").innerText = "Thêm nhân viên";
+  document.getElementById("btnThemNV").style.display = "inline-block";
+  document.getElementById("btnCapNhat").style.display = "none";
+}
+
+// Rút gọn sự kiện nút btnThem
+document.getElementById("btnThem").onclick = function () {
+  chuyenSangCheDoThem();
+};
+
+// Reset khi đóng modal
+document.getElementById("btnDong").onclick = function () {
+  chuyenSangCheDoThem();
+};
+
+// Khởi tạo modal ở chế độ thêm nhân viên
+chuyenSangCheDoThem();
